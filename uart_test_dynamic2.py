@@ -2,12 +2,13 @@ import serial
 import random
 import socket
 import crcmod
+import time
 
 host = socket.gethostname()
 
 timeout 			= 60			# port timeout; None = wait forever
 
-# TILE PACKET DATA
+# TILE PACKET DATA (52 bytes)
 # Packet bytes, must be added to array in single bytes
 SYNC 				= 0xC0			# 1 byte
 TILE_PKT_TYPE 		= 0x88			# 1 byte
@@ -361,7 +362,7 @@ TLM_HEALTH_PKT.append(CRC_1)
 TLM_HEALTH_PKT.append(SYNC)
 
 # Setup and open serial port
-if host == 'bz-ece-hsddl07':
+if host == 'bz-ece-hsddl03':
     uart1 = serial.Serial(port = 'COM5', baudrate = 115200, timeout = timeout)
 elif host == 'bz-ece-hsddl05':
     uart1 = serial.Serial(port = 'COM3', baudrate = 115200, timeout = timeout)
@@ -390,7 +391,9 @@ print()
 # Loop forever waiting for commands
 # Will send the correct packet (TILE or HEALTH) depending on the command received
 while(True):
+	#print("WAITING FOR COMMAND...")
 	cmd = uart1.read(1)
+	time.sleep(3)
 
 	print()
 	#print("WAITING FOR COMMAND...")
