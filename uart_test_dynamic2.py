@@ -320,7 +320,7 @@ TLM_HEALTH_PKT = bytearray([SYNC, HEALTH_PKT_TYPE,
 							SYSTEM_RUNTIME_MS_1, SYSTEM_STATUS_FLAG, SYSTEM_STATUS_FLAG_1])
 
 
-TEST_PKT = bytearray("Hello World!", "utf8")
+#TEST_PKT = bytearray("Hello World!", "utf8")
 
 def split_crc(crc16):
 	crc16_int = int(crc16, 16)
@@ -329,13 +329,42 @@ def split_crc(crc16):
 	return {'CRC':a, 'CRC_1':b}
 
 # Create the crc function
-CRC16 = crcmod.predefined.Crc('xmodem')
+#CRC16 = crcmod.predefined.Crc('xmodem')
+CRC16_fun = crcmod.mkCrcFun(0x11021, initCrc=0xFFFF, rev=False)
+
+crc_L = []
+# CRC testing
+for i in range(49):
+	crc_L.append(i)
+
+TLM_TEST_PKT = bytearray(crc_L)
+
+TEST_CRC = CRC16_fun(TLM_TEST_PKT)
+print("TEST_CRC: " + format(TEST_CRC, '04X'))
+FULL_CRC = split_crc(format(TEST_CRC, '04X'))
+#print(format(FULL_CRC['CRC'], '02X') + " " + format(FULL_CRC['CRC_1'], '02X'))
+CRC = FULL_CRC['CRC']
+CRC_1 = FULL_CRC['CRC_1']
+
+TLM_TEST_PKT.append(CRC)
+TLM_TEST_PKT.append(CRC_1)
+# add the final sync byte
+TLM_TEST_PKT.append(SYNC)
+
+test_out = ''
+for i in range(0, len(TLM_TEST_PKT)):
+	test_out += format(TLM_TEST_PKT[i],'02X') + ' '
+
+print("TEST_PKT is " + str(len(TLM_TEST_PKT)) + " bytes long.")
+print("TEST_PKT: " + test_out)
+print()
+
 
 # Create CRC for TILE packet
-CRC16.update(TLM_TILE_PKT)
-TILE_CRC = CRC16.hexdigest()
-print("TILE_CRC: " + TILE_CRC)
-FULL_CRC = split_crc(TILE_CRC)
+#CRC16.update(TLM_TILE_PKT)
+TILE_CRC = CRC16_fun(TLM_TILE_PKT)
+print("TILE_CRC: " + format(TILE_CRC, '04X'))
+FULL_CRC = split_crc(format(TILE_CRC, '04X'))
 #print(format(FULL_CRC['CRC'], '02X') + " " + format(FULL_CRC['CRC_1'], '02X'))
 CRC = FULL_CRC['CRC']
 CRC_1 = FULL_CRC['CRC_1']
@@ -347,10 +376,9 @@ TLM_TILE_PKT.append(CRC_1)
 TLM_TILE_PKT.append(SYNC)
 
 # Create CRC for HEALTH packet
-CRC16.update(TLM_HEALTH_PKT)
-HEALTH_CRC = CRC16.hexdigest()
-print("HEALTH_CRC: " + str(HEALTH_CRC))
-FULL_CRC = split_crc(HEALTH_CRC)
+HEALTH_CRC = CRC16_fun(TLM_HEALTH_PKT)
+print("HEALTH_CRC: " + format(HEALTH_CRC, '04X'))
+FULL_CRC = split_crc(format(HEALTH_CRC, '04X'))
 #print(format(FULL_CRC['CRC'], '02X') + " " + format(FULL_CRC['CRC_1'], '02X'))
 CRC = FULL_CRC['CRC']
 CRC_1 = FULL_CRC['CRC_1']
@@ -361,15 +389,8 @@ TLM_HEALTH_PKT.append(CRC_1)
 # add the final sync byte
 TLM_HEALTH_PKT.append(SYNC)
 
-# Setup and open serial port
-if host == 'bz-ece-hsddl03':
-    uart1 = serial.Serial(port = 'COM5', baudrate = 115200, timeout = timeout)
-elif host == 'bz-ece-hsddl05':
-    uart1 = serial.Serial(port = 'COM3', baudrate = 115200, timeout = timeout)
-
-
+# Print out the packets
 tile_out = ''
-
 for i in range(0, len(TLM_TILE_PKT)):
 	tile_out += format(TLM_TILE_PKT[i],'02X') + ' '
 
@@ -378,7 +399,6 @@ print("TILE_PKT: " + tile_out)
 print()
 
 output = ''
-
 for i in range(len(TLM_HEALTH_PKT)):
 	output += format(TLM_HEALTH_PKT[i], '02X') + ' '
 
@@ -386,7 +406,14 @@ print("TILE_PKT is " + str(len(TLM_HEALTH_PKT)) + " bytes long.")
 print("HEALTH_PKT: " + output)
 print()
 
-
+# Setup and open serial port
+if host == 'bz-ece-hsddl03':
+    uart1 = serial.Serial(port = 'COM5', baudrate = 115200, timeout = timeout)
+elif host == 'bz-ece-hsddl05':
+    uart1 = serial.Serial(port = 'COM3', baudrate = 115200, timeout = timeout)
+elif host == 'bz-ece-hsddl07':
+	print("TEST COMPLETE")
+	quit()
 
 # Loop forever waiting for commands
 # Will send the correct packet (TILE or HEALTH) depending on the command received
