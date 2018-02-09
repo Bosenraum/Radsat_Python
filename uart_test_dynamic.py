@@ -34,10 +34,14 @@ FAULT_COUNT_TILE7	= 0x00
 FAULT_COUNT_TILE7_1 = 0x07			# 2 bytes
 FAULT_COUNT_TILE8	= 0x00
 FAULT_COUNT_TILE8_1 = 0x08			# 2 bytes
+FAULTS_INJECTED		= 0x00
+FAULTS_INJECTED_1	= 0x09			# 2 bytes
+MOVE_TILE_COUNT		= 0x00
+MOVE_TILE_COUNT_1	= 0x0A			# 2 bytes
+NEXT_SPARE			= 0x01			# 1 byte
 READBACK_FAULTS		= 0x00
 READBACK_FAULTS_1	= 0x0C			# 2 bytes
-WATCHDOG			= 0x00
-WATCHDOG_1			= 0x0C			# 2 bytes
+WATCHDOG			= 0x00			# 1 byte
 ACT_PROC1    		= 0x01			# 1 bytes
 ACT_PROC2    		= 0x02			# 1 bytes
 ACT_PROC3    		= 0x03			# 1 bytes
@@ -49,8 +53,6 @@ ACT_PROC3_CNT		= 0x00
 ACT_PROC3_CNT_1		= 0xCC			# 2 bytes
 VOTER_CNTS			= 0xFF
 VOTER_CNTS_1		= 0xFF			# 2 bytes
-CRC					= 0x00
-CRC_1				= 0x00			# 2 bytes
 
 
 # HEALTH PACKET DATA

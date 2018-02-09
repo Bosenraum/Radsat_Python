@@ -1,6 +1,7 @@
 import serial
 import random
 import socket
+import crcmod
 
 host = socket.gethostname()
 
@@ -36,10 +37,16 @@ FAULT_COUNT_TILE7	= 0x00
 FAULT_COUNT_TILE7_1 = 0x07			# 2 bytes
 FAULT_COUNT_TILE8	= 0x00
 FAULT_COUNT_TILE8_1 = 0x08			# 2 bytes
+FAULTS_INJECTED		= 0x00
+FAULTS_INJECTED_1	= 0x09			# 2 bytes
+TOTAL_FAULTS		= 0x00
+TOTAL_FAULTS_1		= 0x0B			# 2 bytes
+MOVE_TILE_COUNT		= 0x00
+MOVE_TILE_COUNT_1	= 0x0A			# 2 bytes
+NEXT_SPARE			= 0x01			# 1 byte
 READBACK_FAULTS		= 0x00
 READBACK_FAULTS_1	= 0x0C			# 2 bytes
-WATCHDOG			= 0x00
-WATCHDOG_1			= 0x0C			# 2 bytes
+WATCHDOG			= 0x00			# 1 byte
 ACT_PROC1    		= 0x01			# 1 bytes
 ACT_PROC2    		= 0x02			# 1 bytes
 ACT_PROC3    		= 0x03			# 1 bytes
@@ -51,8 +58,6 @@ ACT_PROC3_CNT		= 0x00
 ACT_PROC3_CNT_1		= 0xCC			# 2 bytes
 VOTER_CNTS			= 0xFF
 VOTER_CNTS_1		= 0xFF			# 2 bytes
-CRC					= 0xAA
-CRC_1				= 0xAA			# 2 bytes
 
 
 # HEALTH PACKET DATA
@@ -248,7 +253,6 @@ SYSTEM_RUNTIME_MS       = 0xFF
 SYSTEM_RUNTIME_MS_1     = 0xB5
 SYSTEM_STATUS_FLAG      = 0x00
 SYSTEM_STATUS_FLAG_1    = 0x01
-CRC                     = 0xAA
 
 
 
@@ -259,10 +263,11 @@ TLM_TILE_PKT = bytearray([SYNC, TILE_PKT_TYPE, S6_COUNT, S6_COUNT_1, S6_COUNT_2,
 						  FAULT_COUNT_TILE2_1, FAULT_COUNT_TILE3, FAULT_COUNT_TILE3_1, FAULT_COUNT_TILE4,
 						  FAULT_COUNT_TILE4_1, FAULT_COUNT_TILE5, FAULT_COUNT_TILE5_1, FAULT_COUNT_TILE6,
 						  FAULT_COUNT_TILE6_1, FAULT_COUNT_TILE7, FAULT_COUNT_TILE7_1, FAULT_COUNT_TILE8,
-						  FAULT_COUNT_TILE8_1, READBACK_FAULTS, READBACK_FAULTS_1, WATCHDOG, WATCHDOG_1,
-						  ACT_PROC1, ACT_PROC2, ACT_PROC3, ACT_PROC1_CNT, ACT_PROC1_CNT_1,
-						  ACT_PROC2_CNT, ACT_PROC2_CNT_1, ACT_PROC3_CNT, ACT_PROC3_CNT_1, VOTER_CNTS,
-						  VOTER_CNTS_1, CRC, CRC_1, SYNC])
+						  FAULT_COUNT_TILE8_1, FAULTS_INJECTED, FAULTED_TILES_1, TOTAL_FAULTS,
+						  TOTAL_FAULTS_1, MOVE_TILE_COUNT, MOVE_TILE_COUNT_1, NEXT_SPARE, READBACK_FAULTS,
+						  READBACK_FAULTS_1, WATCHDOG, ACT_PROC1, ACT_PROC2, ACT_PROC3, ACT_PROC1_CNT,
+						  ACT_PROC1_CNT_1, ACT_PROC2_CNT, ACT_PROC2_CNT_1, ACT_PROC3_CNT, ACT_PROC3_CNT_1,
+						  VOTER_CNTS, VOTER_CNTS_1])
 
 TLM_HEALTH_PKT = bytearray([SYNC, HEALTH_PKT_TYPE,
 							VOLTAGE_INS_BATT, VOLTAGE_INS_BATT_1, VOLTAGE_AVE_BATT, VOLTAGE_AVE_BATT_1,
@@ -311,32 +316,76 @@ TLM_HEALTH_PKT = bytearray([SYNC, HEALTH_PKT_TYPE,
 							CURRENT_INS_1V0VD_1, CURRENT_AVE_1V0VD_1, CURRENT_MAX_1V0VD_1, CURRENT_MIN_1V0VD_1,
 							V6_TEMPERATURE, PC1_TEMPERATURE, PC1_EXT_TEMPERATURE, PC2_TEMPERATURE,
 							PC2_EXT_TEMPERATURE, SYSTEM_RUNTIME_DAYS, SYSTEM_RUNTIME_DAYS_1, SYSTEM_RUNTIME_MS,
-							SYSTEM_RUNTIME_MS_1, SYSTEM_STATUS_FLAG, SYSTEM_STATUS_FLAG_1, CRC, SYNC])
+							SYSTEM_RUNTIME_MS_1, SYSTEM_STATUS_FLAG, SYSTEM_STATUS_FLAG_1])
+
 
 TEST_PKT = bytearray("Hello World!", "utf8")
+
+def split_crc(crc16):
+	crc16_int = int(crc16, 16)
+	a = (crc16_int >> 8) & 0xFF
+	b = crc16_int & 0xFF
+	return {'CRC':a, 'CRC_1':b}
+
+# Create the crc function
+CRC16 = crcmod.predefined.Crc('xmodem')
+
+# Create CRC for TILE packet
+CRC16.update(TLM_TILE_PKT)
+TILE_CRC = CRC16.hexdigest()
+print("TILE_CRC: " + TILE_CRC)
+FULL_CRC = split_crc(TILE_CRC)
+#print(format(FULL_CRC['CRC'], '02X') + " " + format(FULL_CRC['CRC_1'], '02X'))
+CRC = FULL_CRC['CRC']
+CRC_1 = FULL_CRC['CRC_1']
+
+# append crc bytes to the packet
+TLM_TILE_PKT.append(CRC)
+TLM_TILE_PKT.append(CRC_1)
+# add the final sync byte
+TLM_TILE_PKT.append(SYNC)
+
+# Create CRC for HEALTH packet
+CRC16.update(TLM_HEALTH_PKT)
+HEALTH_CRC = CRC16.hexdigest()
+print("HEALTH_CRC: " + str(HEALTH_CRC))
+FULL_CRC = split_crc(HEALTH_CRC)
+#print(format(FULL_CRC['CRC'], '02X') + " " + format(FULL_CRC['CRC_1'], '02X'))
+CRC = FULL_CRC['CRC']
+CRC_1 = FULL_CRC['CRC_1']
+
+# append crc bytes to the packet
+TLM_HEALTH_PKT.append(CRC)
+TLM_HEALTH_PKT.append(CRC_1)
+# add the final sync byte
+TLM_HEALTH_PKT.append(SYNC)
 
 # Setup and open serial port
 if host == 'bz-ece-hsddl07':
     uart1 = serial.Serial(port = 'COM5', baudrate = 115200, timeout = timeout)
 elif host == 'bz-ece-hsddl05':
     uart1 = serial.Serial(port = 'COM3', baudrate = 115200, timeout = timeout)
-    
+
 
 tile_out = ''
 
 for i in range(0, len(TLM_TILE_PKT)):
-	tile_out += str(TLM_TILE_PKT[i]) + ' '
+	tile_out += format(TLM_TILE_PKT[i],'02X') + ' '
 
+print("TILE_PKT is " + str(len(TLM_TILE_PKT)) + " bytes long.")
 print("TILE_PKT: " + tile_out)
 print()
 
 output = ''
 
 for i in range(len(TLM_HEALTH_PKT)):
-	output += str(TLM_HEALTH_PKT[i]) + ' '
+	output += format(TLM_HEALTH_PKT[i], '02X') + ' '
 
+print("TILE_PKT is " + str(len(TLM_HEALTH_PKT)) + " bytes long.")
 print("HEALTH_PKT: " + output)
 print()
+
+
 
 # Loop forever waiting for commands
 # Will send the correct packet (TILE or HEALTH) depending on the command received
