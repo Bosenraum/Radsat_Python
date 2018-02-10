@@ -418,9 +418,9 @@ elif host == 'bz-ece-hsddl07':
 # Loop forever waiting for commands
 # Will send the correct packet (TILE or HEALTH) depending on the command received
 while(True):
-	#print("WAITING FOR COMMAND...")
+	print("WAITING FOR COMMAND...")
 	cmd = uart1.read(1)
-	time.sleep(3)
+	time.sleep(2)
 
 	print()
 	#print("WAITING FOR COMMAND...")
