@@ -11,3 +11,5 @@ for line in log:
 
         output += format(ord(char), '02X') + ' '
     print(output)
+
+log.close()
