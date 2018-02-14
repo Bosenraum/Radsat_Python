@@ -408,7 +408,7 @@ print()
 
 # Setup and open serial port
 if host == 'bz-ece-hsddl03':
-    uart1 = serial.Serial(port = 'COM5', baudrate = 115200, timeout = timeout)
+    uart1 = serial.Serial(port = 'COM3', baudrate = 115200, timeout = timeout)
 elif host == 'bz-ece-hsddl05':
     uart1 = serial.Serial(port = 'COM3', baudrate = 115200, timeout = timeout)
 elif host == 'bz-ece-hsddl07':
@@ -451,8 +451,10 @@ while(True):
 
 	else:
 		# Print the incorrect packet and stop execution, also catches timeout
-		print(str(int.from_bytes(cmd, byteorder='big')))
-		print("COMMAND NOT RECOGNIZED or TIMEOUT")
-		print("CMD: " + str(cmd))
+		if(int.from_bytes(cmd, byteorder='big') == 0):
+			print("TIMEOUT")
+		else:
+			print("COMMAND NOT RECOGNIZED")
+			print("CMD: " + str(cmd))
 		print("EXITING")
 		break;
