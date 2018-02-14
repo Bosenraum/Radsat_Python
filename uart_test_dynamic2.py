@@ -451,6 +451,7 @@ while(True):
 
 	else:
 		# Print the incorrect packet and stop execution, also catches timeout
+		print(str(int.from_bytes(cmd, byteorder='big')))
 		print("COMMAND NOT RECOGNIZED or TIMEOUT")
 		print("CMD: " + str(cmd))
 		print("EXITING")
