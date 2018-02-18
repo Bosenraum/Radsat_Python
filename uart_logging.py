@@ -1,17 +1,46 @@
 import serial
+import threading
 
 timeout = 0
+newline = 0xA
 
 TILE_PKT_SIZE = 52
 HEALTH_PKT_SIZE = 111
 
 uart2 = serial.Serial(port = 'COM3', baudrate = 115200, timeout = timeout)
 
-log = open("pktlog.txt", 'wb')
+log = open("pktlog.txt", 'w')
 
+# def get_input():
+#     while True:
+#         cmd = input()
+#         if cmd == 'q':
+#             quit()
+#         #print(cmd)
+#         uart2.write(cmd.encode('utf-8'))
+#
+# inThread = threading.Thread(target=get_input)
+# inThread.start()
 
 while True:
-    log.write(format(int(uart2.read(TILE_PKT_SIZE + 1)), '02X'))
-    log.write(format(int(uart2.read(HEALTH_PKT_SIZE + 1)), '02X'))
+    for b in uart2.read(TILE_PKT_SIZE + 1):
+        out = format(int(b), '02X') + " "
+        if(int(b) == 0xA):
+            log.write('\n')
+            #print('\n')
+        else:
+            log.write(out)
+            #print(out, end="")
+
+    for b in uart2.read(HEALTH_PKT_SIZE + 1):
+        out = format(int(b), '02X') + " "
+        if(int(b) == 0xA):
+            log.write('\n')
+            #print('\n')
+        else:
+            log.write(out)
+            #print(out, end="")
+
+
 
 log.close()

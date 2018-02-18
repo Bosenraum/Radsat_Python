@@ -6,7 +6,7 @@ import time
 
 host = socket.gethostname()
 
-timeout 			= 60			# port timeout; None = wait forever
+timeout 			= None			# port timeout; None = wait forever
 
 # TILE PACKET DATA (52 bytes)
 # Packet bytes, must be added to array in single bytes
@@ -300,24 +300,7 @@ TLM_HEALTH_PKT = bytearray([SYNC, HEALTH_PKT_TYPE,
 							CURRENT_INS_N3V0A, CURRENT_AVE_N3V0A, CURRENT_MAX_N3V0A, CURRENT_MIN_N3V0A,
 							CURRENT_INS_N3V0A_1, CURRENT_AVE_N3V0A_1, CURRENT_MAX_N3V0A_1, CURRENT_MIN_N3V0A_1,
 							CURRENT_INS_3V3D, CURRENT_AVE_3V3D, CURRENT_MAX_3V3D, CURRENT_MIN_3V3D,
-							CURRENT_INS_3V3D_1, CURRENT_AVE_3V3D_1, CURRENT_MAX_3V3D_1, CURRENT_MIN_3V3D_1,
-							CURRENT_INS_3V0A, CURRENT_AVE_3V0A, CURRENT_MAX_3V0A, CURRENT_MIN_3V0A,
-							CURRENT_INS_3V0A_1, CURRENT_AVE_3V0A_1, CURRENT_MAX_3V0A_1, CURRENT_MIN_3V0A_1,
-							CURRENT_INS_2V5D, CURRENT_AVE_2V5D, CURRENT_MAX_2V5D, CURRENT_MIN_2V5D,
-							CURRENT_INS_2V5D_1, CURRENT_AVE_2V5D_1, CURRENT_MAX_2V5D_1, CURRENT_MIN_2V5D_1,
-							CURRENT_INS_2V5FA, CURRENT_AVE_2V5FA, CURRENT_MAX_2V5FA, CURRENT_MIN_2V5FA,
-							CURRENT_INS_2V5FA_1, CURRENT_AVE_2V5FA_1, CURRENT_MAX_2V5FA_1, CURRENT_MIN_2V5FA_1,
-							CURRENT_INS_2V5RA, CURRENT_AVE_2V5RA, CURRENT_MAX_2V5RA, CURRENT_MIN_2V5RA,
-							CURRENT_INS_2V5RA_1, CURRENT_AVE_2V5RA_1, CURRENT_MAX_2V5RA_1, CURRENT_MIN_2V5RA_1,
-							CURRENT_INS_1V8D, CURRENT_AVE_1V8D, CURRENT_MAX_1V8D, CURRENT_MIN_1V8D,
-							CURRENT_INS_1V8D_1, CURRENT_AVE_1V8D_1, CURRENT_MAX_1V8D_1, CURRENT_MIN_1V8D_1,
-							CURRENT_INS_1V0SD, CURRENT_AVE_1V0SD, CURRENT_MAX_1V0SD, CURRENT_MIN_1V0SD,
-							CURRENT_INS_1V0SD_1, CURRENT_AVE_1V0SD_1, CURRENT_MAX_1V0SD_1, CURRENT_MIN_1V0SD_1,
-							CURRENT_INS_1V0VD, CURRENT_AVE_1V0VD, CURRENT_MAX_1V0VD, CURRENT_MIN_1V0VD,
-							CURRENT_INS_1V0VD_1, CURRENT_AVE_1V0VD_1, CURRENT_MAX_1V0VD_1, CURRENT_MIN_1V0VD_1,
-							V6_TEMPERATURE, PC1_TEMPERATURE, PC1_EXT_TEMPERATURE, PC2_TEMPERATURE,
-							PC2_EXT_TEMPERATURE, SYSTEM_RUNTIME_DAYS, SYSTEM_RUNTIME_DAYS_1, SYSTEM_RUNTIME_MS,
-							SYSTEM_RUNTIME_MS_1, SYSTEM_STATUS_FLAG, SYSTEM_STATUS_FLAG_1])
+							CURRENT_INS_3V3D_1, CURRENT_AVE_3V3D_1])
 
 
 #TEST_PKT = bytearray("Hello World!", "utf8")
@@ -332,32 +315,32 @@ def split_crc(crc16):
 #CRC16 = crcmod.predefined.Crc('xmodem')
 CRC16_fun = crcmod.mkCrcFun(0x11021, initCrc=0xFFFF, rev=False)
 
-crc_L = []
-# CRC testing
-for i in range(49):
-	crc_L.append(i)
+# crc_L = []
+# # CRC testing
+# for i in range(49):
+# 	crc_L.append(i)
 
-TLM_TEST_PKT = bytearray(crc_L)
-
-TEST_CRC = CRC16_fun(TLM_TEST_PKT)
-print("TEST_CRC: " + format(TEST_CRC, '04X'))
-FULL_CRC = split_crc(format(TEST_CRC, '04X'))
-#print(format(FULL_CRC['CRC'], '02X') + " " + format(FULL_CRC['CRC_1'], '02X'))
-CRC = FULL_CRC['CRC']
-CRC_1 = FULL_CRC['CRC_1']
-
-TLM_TEST_PKT.append(CRC)
-TLM_TEST_PKT.append(CRC_1)
-# add the final sync byte
-TLM_TEST_PKT.append(SYNC)
-
-test_out = ''
-for i in range(0, len(TLM_TEST_PKT)):
-	test_out += format(TLM_TEST_PKT[i],'02X') + ' '
-
-print("TEST_PKT is " + str(len(TLM_TEST_PKT)) + " bytes long.")
-print("TEST_PKT: " + test_out)
-print()
+# TLM_TEST_PKT = bytearray(crc_L)
+#
+# TEST_CRC = CRC16_fun(TLM_TEST_PKT)
+# print("TEST_CRC: " + format(TEST_CRC, '04X'))
+# FULL_CRC = split_crc(format(TEST_CRC, '04X'))
+# #print(format(FULL_CRC['CRC'], '02X') + " " + format(FULL_CRC['CRC_1'], '02X'))
+# CRC = FULL_CRC['CRC']
+# CRC_1 = FULL_CRC['CRC_1']
+#
+# TLM_TEST_PKT.append(CRC)
+# TLM_TEST_PKT.append(CRC_1)
+# # add the final sync byte
+# TLM_TEST_PKT.append(SYNC)
+#
+# test_out = ''
+# for i in range(0, len(TLM_TEST_PKT)):
+# 	test_out += format(TLM_TEST_PKT[i],'02X') + ' '
+#
+# print("TEST_PKT is " + str(len(TLM_TEST_PKT)) + " bytes long.")
+# print("TEST_PKT: " + test_out)
+# print()
 
 
 # Create CRC for TILE packet
@@ -408,7 +391,7 @@ print()
 
 # Setup and open serial port
 if host == 'bz-ece-hsddl03':
-    uart1 = serial.Serial(port = 'COM3', baudrate = 115200, timeout = timeout)
+    uart1 = serial.Serial(port = 'COM5', baudrate = 115200)
 elif host == 'bz-ece-hsddl05':
     uart1 = serial.Serial(port = 'COM3', baudrate = 115200, timeout = timeout)
 elif host == 'bz-ece-hsddl07':
@@ -420,7 +403,7 @@ elif host == 'bz-ece-hsddl07':
 while(True):
 	print("WAITING FOR COMMAND...")
 	cmd = uart1.read(1)
-	time.sleep(2)
+	#time.sleep(2)
 
 	print()
 	#print("WAITING FOR COMMAND...")
@@ -456,5 +439,5 @@ while(True):
 		else:
 			print("COMMAND NOT RECOGNIZED")
 			print("CMD: " + str(cmd))
-		print("EXITING")
-		break;
+		#print("EXITING")
+		#break;
