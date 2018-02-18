@@ -5,7 +5,7 @@ timeout = 0
 newline = 0xA
 
 TILE_PKT_SIZE = 52
-HEALTH_PKT_SIZE = 111
+HEALTH_PKT_SIZE = 123
 
 uart2 = serial.Serial(port = 'COM3', baudrate = 115200, timeout = timeout)
 
