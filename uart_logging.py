@@ -41,6 +41,13 @@ while True:
             log.write(out)
             #print(out, end="")
 
+	# b = 0
+	# while int(b) != 0xA:
+	# 	b = uart2.read(1)
+	# 	out = format(int(b), '02X') + " "
+	# 	log.write(out)
+	# log.write('\n')
+
 
 
 log.close()

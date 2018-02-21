@@ -14,8 +14,8 @@ SYNC 				= 0xC0			# 1 byte
 TILE_PKT_TYPE 		= 0x88			# 1 byte
 S6_COUNT 			= 0x00
 S6_COUNT_1			= 0x00
-S6_COUNT_2			= 0xFF
-S6_COUNT_3			= 0xFF			# 4 bytes
+S6_COUNT_2			= 0xBB
+S6_COUNT_3			= 0xAA			# 4 bytes
 ACT_TILES 			= 0x00
 ACT_TILES_1			= 0x03			# 2 bytes
 FAULTED_TILES		= 0x00
@@ -57,8 +57,8 @@ ACT_PROC2_CNT		= 0x00
 ACT_PROC2_CNT_1		= 0xBB			# 2 bytes
 ACT_PROC3_CNT		= 0x00
 ACT_PROC3_CNT_1		= 0xCC			# 2 bytes
-VOTER_CNTS			= 0xFF
-VOTER_CNTS_1		= 0xFF			# 2 bytes
+VOTER_CNTS			= 0x55
+VOTER_CNTS_1		= 0x66			# 2 bytes
 
 
 # HEALTH PACKET DATA
@@ -349,8 +349,8 @@ TILE_CRC = CRC16_fun(TLM_TILE_PKT)
 print("TILE_CRC: " + format(TILE_CRC, '04X'))
 FULL_CRC = split_crc(format(TILE_CRC, '04X'))
 #print(format(FULL_CRC['CRC'], '02X') + " " + format(FULL_CRC['CRC_1'], '02X'))
-CRC = FULL_CRC['CRC']
-CRC_1 = FULL_CRC['CRC_1']
+CRC = 0xCC #FULL_CRC['CRC']
+CRC_1 = 0xCC #FULL_CRC['CRC_1']
 
 # append crc bytes to the packet
 TLM_TILE_PKT.append(CRC)
@@ -363,8 +363,8 @@ HEALTH_CRC = CRC16_fun(TLM_HEALTH_PKT)
 print("HEALTH_CRC: " + format(HEALTH_CRC, '04X'))
 FULL_CRC = split_crc(format(HEALTH_CRC, '04X'))
 #print(format(FULL_CRC['CRC'], '02X') + " " + format(FULL_CRC['CRC_1'], '02X'))
-CRC = FULL_CRC['CRC']
-CRC_1 = FULL_CRC['CRC_1']
+CRC = 0xCC #FULL_CRC['CRC']
+CRC_1 = 0xCC #FULL_CRC['CRC_1']
 
 # append crc bytes to the packet
 TLM_HEALTH_PKT.append(CRC)
