@@ -1,5 +1,7 @@
 import serial
 import threading
+import datetime
+
 
 timeout = 0
 newline = 0xA
@@ -23,6 +25,12 @@ log = open("pktlog.txt", 'w')
 # inThread.start()
 
 while True:
+
+    now = datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y")
+    log.write("-----------------------------------")
+    log.write("        " + now "        ")
+    log.write("-----------------------------------")
+
     for b in uart2.read(TILE_PKT_SIZE + 1):
         out = format(int(b), '02X') + " "
         if(int(b) == 0xA):
