@@ -1,17 +1,22 @@
-from tkinter import ttk
+from tkinter import ttk, StringVar
 import tkinter as tk
 
 log = open("pktlog.txt")
 
 width = 12
 
+
 class Application(tk.Frame):
 	tileRows = 27
+
+
 
 	def __init__(self, master=None):
 		super().__init__(master)
 		self.pack()
 		self.winfo_toplevel().title("Packet Decoder")
+		self.packet = StringVar()
+		self.packet.set("TILE")
 		self.create_widgets()
 
 	def create_widgets(self):
@@ -33,7 +38,7 @@ class Application(tk.Frame):
 		self.act_tiles = tk.Label(p1, text="ACT TILES:", width=width)
 		self.act_tiles.grid(column=0, row=4)
 
-		self.pkt_type_data = tk.Label(p1, text="TILE PACKET", width=width)
+		self.pkt_type_data = tk.Label(p1, textvariable=self.packet, width=width)
 		self.pkt_type_data.grid(column=3, row=0)
 
 		self.s6_count_data = tk.Label(p1, text="0x1234ABCD", width=width)
