@@ -7,6 +7,7 @@ import time
 host = socket.gethostname()
 
 timeout 			= None			# port timeout; None = wait forever
+baud 				= 115200
 
 # TILE PACKET DATA (52 bytes)
 # Packet bytes, must be added to array in single bytes
@@ -391,9 +392,9 @@ print()
 
 # Setup and open serial port
 if host == 'bz-ece-hsddl03':
-    uart1 = serial.Serial(port = 'COM5', baudrate = 115200)
+    uart1 = serial.Serial(port='COM5', baudrate=baud)
 elif host == 'bz-ece-hsddl05':
-    uart1 = serial.Serial(port = 'COM3', baudrate = 115200, timeout = timeout)
+    uart1 = serial.Serial(port='COM3', baudrate=baud, timeout=timeout)
 elif host == 'bz-ece-hsddl07':
 	print("TEST COMPLETE")
 	quit()
