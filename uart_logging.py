@@ -8,11 +8,14 @@ newline = 0xA
 
 TILE_PKT_SIZE = 52
 HEALTH_PKT_SIZE = 123
+port = 'COM3'
 
-uart2 = serial.Serial(port = 'COM3', baudrate = 115200, timeout = timeout)
+uart2 = serial.Serial(port=port, baudrate=115200, timeout=timeout)
 
 log = open("pktlog.txt", 'w')
 
+
+# Simple threaded solution to allow user input while also waiting for packets
 # def get_input():
 #     while True:
 #         cmd = input()
